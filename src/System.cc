@@ -25,6 +25,7 @@
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
+#include "tic_toc.h"
 
 namespace ORB_SLAM2
 {
@@ -155,7 +156,11 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
     }
     }
 
+    TicToc timer;
     cv::Mat Tcw = mpTracker->GrabImageStereo(imLeft,imRight,timestamp);
+    double tm = timer.toc();
+    std::cout << "grab image stereo: tm " << std::setprecision(15) << timestamp << " time used: " << timer.toc() << "\n"; 
+    timing_vec_.push_back(tm);
 
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
@@ -487,6 +492,15 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
 {
     unique_lock<mutex> lock(mMutexState);
     return mTrackedKeyPointsUn;
+}
+
+double System::meanRunTime(){
+     size_t tm_num = timing_vec_.size();
+     double total_tm = 0;
+     for (size_t i = 0; i < tm_num; i++){
+	total_tm += timing_vec_[i];
+     }
+     return total_tm / tm_num;
 }
 
 } //namespace ORB_SLAM

@@ -116,6 +116,8 @@ int main(int argc, char **argv)
     sync.registerCallback(boost::bind(&ImageGrabber::GrabStereo,&igb,_1,_2));
 
     ros::spin();
+    
+    std::cout << "Mean tracking time: " << SLAM.meanRunTime() << "\n";
 
     // Stop all threads
     SLAM.Shutdown();
